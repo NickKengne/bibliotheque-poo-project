@@ -1,12 +1,9 @@
-package pricipale;
+package main;
 
-import documents.Article;
-import documents.Document;
-import documents.Livre;
-import documents.Magazine;
+import document.*;
 import service.Historique;
 import service.PretDocument;
-import personnel.Adherent;
+import personne.Adherent;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -63,9 +60,10 @@ public class Bibliotheque {
 
     public void menu(){
         String choix;
+        //toujours ouvrir le menu
         do {
-            System.out.println("\n\t **********\tLE MENU PRINCIPALE DE NOTRE BIBLIOTHEQUE\t**********");
-            System.out.println("\t Veillez choisir le numero correspondant à votre choix");
+            System.out.println("\n\t\tMENU PRINCIPAL \t");
+            System.out.println("\t Veuillez choisir le numero correspondant à votre choix");
             System.out.println("\t 0 ) Quitter l'application");
             System.out.println("\t 1 ) Gestion des Adherents");
             System.out.println("\t 2 ) Gestion des documents");
@@ -75,20 +73,13 @@ public class Bibliotheque {
             switch (choix){
                 case "0":
                     System.out.println("\t Fermeture en cours ...");
-                    pause(500);
-                    System.out.println("\t 3");
-                    pause(1000);
-                    System.out.println("\t 2");
-                    pause(1000);
-                    System.out.println("\t 1");
-                    pause(1000);
                     System.exit(0);
                     break;
                 case "1": gestionAdherent(); break;
-                case "2": gestionDocument(); break;
-                case "3": gestionPret(); break;
-                case "4": toutHistorique(); break;
-                default: System.out.println("\t Choix invalide, veillez réessayer"); pause(1000); break;
+                case "2": manageDocument(); break;
+                case "3": managePret(); break;
+                case "4": allHistory(); break;
+                default: System.out.println("\t Choix invalide, veuillez réessayer"); pause(1000); break;
             }
         }while (true);
     }
@@ -96,7 +87,7 @@ public class Bibliotheque {
     public void gestionAdherent(){
         String choixAdherent;
         do {
-            System.out.println("\n\t *****\tGestion Adherents\t*****");
+            System.out.println("\n\t *****\tGestion des Adherents\t*****");
             System.out.println("\t Veillez choisir le numero correspondant à votre choix");
             System.out.println("\t 0 ) Retour au menu principale");
             System.out.println("\t 1 ) Afficher les adherents disponible");
@@ -112,18 +103,19 @@ public class Bibliotheque {
                 case "1":   afficherAdherent(); break;
                 case "2":   ajouterAdherent(); break;
                 case "3":   modifierAdherent(); break;
-                case "4":   supprimerAdherent(); break;
-                case "5":   chercherToutInformationAdherent(); break;
-                case "6":   afficherAdherentRetard(); break;
-                case "7":   renouvellerAdherentRetard(); break;
+                case "4":   deleteAdherent(); break;
+                case "5":   infosAdherent(); break;
+                case "6":   printAdherentIsLate(); break;
+                case "7":   tapAdherentEnRetard(); break;
                 default:    System.out.println("\t Choix invalide! veillez réessayer"); pause(1000); break;
             }
         }while (!choixAdherent.equals("0"));
     }
 
     public void afficherAdherent(){
-        System.out.println("\n\t *****\tLes adherent de la bibliotheque\t*****");
+        System.out.println("\n\t *****\tLes adherents de la bibliotheque\t*****");
         int nb =0;
+        //verifions que la liste d'adherent n'est pas vide
         if (listAdherent.size() == 0)
             System.out.println("\t Il n'y a pas encore d'adherent enregistrer dans cette bibliothéque");
         else{
@@ -159,19 +151,19 @@ public class Bibliotheque {
     public void modifierAdherent(){
         System.out.println("\n\t *****\tModifier un adherent par id\t*****");
         Adherent a;
-        a = chercherAdherentById();
+        a = findAdherentById();
         a.modifierCetAdherent(sc, historique);
     }
 
-    public void supprimerAdherent(){
+    public void deleteAdherent(){
         System.out.println("\n\t *****\tSuppression d'Adherent\t*****");
         Adherent a;
-        a = chercherAdherentById();
-//        VOIR SI L'ADHERENT A UN PRET EN COURS
+        a = findAdherentById();
+        //verification du status de pret de l'adherent
         for (Document d:listDocument)
             for (PretDocument pretDocument:d.getListPret())
                 if (pretDocument.getAdherent() == a){
-                    System.out.println("\t Suppression impossible! Cet adherent a encore des pret en cours...");
+                    System.out.println("\t Suppression impossible! Cet adherent a encore des prets en cours...");
                     pause(1000);
                     return;
                 }
@@ -189,7 +181,7 @@ public class Bibliotheque {
         pause(1000);
     }
 
-    public void chercherToutInformationAdherent(){
+    public void infosAdherent(){
         System.out.println("\n\t *****\tChercher toutes les information d'un adherent");
         System.out.println("\t Chercher l'adherent : ");
         ArrayList<Adherent> listAdherentTrouver = new ArrayList<>();
@@ -216,8 +208,8 @@ public class Bibliotheque {
         sc.nextLine();
     }
 
-    public void afficherAdherentRetard(){
-        System.out.println("\n\t *****\tLes adherent retardataires !\t*****\n");
+    public void printAdherentIsLate(){
+        System.out.println("\n\t *****\tLes adherents retardataires !\t*****\n");
         int nb=0;
         for (Adherent a:listAdherent)
             if (a.isRetard()) {
@@ -234,19 +226,19 @@ public class Bibliotheque {
         sc.nextLine();
     }
 
-    public void renouvellerAdherentRetard(){
-        System.out.println("\n\t *****\t Renouveler un adherent retard\t*****");
+    public void tapAdherentEnRetard(){
+        System.out.println("\n\t *****\t Reveller un adherent retard\t*****");
         int id;
         String choix;
         do {
             System.out.println("\t 0 ) Retour");
-            System.out.println("\t 1 ) afficher tout les adherents retard");
+            System.out.println("\t 1 ) afficher tout les adherents en retard");
             System.out.println("\t 2 ) Renouveller adherent par ID");
-            System.out.println("\t Veillez entrer votre choix");
+            System.out.println("\t Veuillez entrer votre choix");
             choix = sc.nextLine();
             switch (choix){
                 case "0":   gestionAdherent(); break;
-                case "1":   afficherAdherentRetard(); break;
+                case "1":   printAdherentIsLate(); break;
                 case "2":
                     System.out.println("\t Entrer ID : ");
                     id = verifierID();
@@ -287,13 +279,13 @@ public class Bibliotheque {
         }while (!choix.equals("0"));
     }
 
-    public void gestionDocument(){
+    public void manageDocument(){
         String choixdocument;
         do {
             System.out.println("\n\t *****\tGestion Documents\t*****");
-            System.out.println("\t Veillez choisir le numero correspondant à votre choix");
+            System.out.println("\t Veuillez choisir le numero correspondant à votre choix");
             System.out.println("\t 0 ) Retour au menu principale");
-            System.out.println("\t 1 ) Afficher les Documents disponible");
+            System.out.println("\t 1 ) Afficher les Documents disponibles");
             System.out.println("\t 2 ) Ajouter un nouveau document");
             System.out.println("\t 3 ) Modifier un document par id");
             System.out.println("\t 4 ) Supprimer un document par id");
@@ -301,17 +293,17 @@ public class Bibliotheque {
             choixdocument = sc.nextLine();
             switch (choixdocument){
                 case "0": menu(); break;
-                case "1": afficherDocument(); break;
-                case "2": ajouterDocument(); break;
-                case "3": modifierDocument(); break;
-                case "4": supprimerDocument(); break;
-                case "5": chercherDocument(); break;
+                case "1": printDocument(); break;
+                case "2": addDocument(); break;
+                case "3": updateDocument(); break;
+                case "4": deleteDocument(); break;
+                case "5": searchDocument(); break;
                 default: System.out.println("\t Choix invalide! veillez réessayer"); pause(1000); break;
             }
         }while (!choixdocument.equals("0"));
     }
 
-    public void afficherDocument(){
+    public void printDocument(){
         System.out.println("\n\t *****\tLes documents de la bibliotheque\t*****");
         int  nb=0;
         if (listDocument.size() == 0)
@@ -329,11 +321,11 @@ public class Bibliotheque {
         sc.nextLine();
     }
 
-    public void ajouterDocument(){
+    public void addDocument(){
         System.out.println("\n\t *****\tAjouter un nouveau document a la bibliotheque\t*****");
         String choixType, str;
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        System.out.println("\t Veillez selectionner le type du document a ajouter");
+        System.out.println("\t Veuillez selectionner le type du document a ajouter");
         do {
             System.out.println("\t 0) Annuler");
             System.out.println("\t 1) Article Scientifique");
@@ -341,7 +333,7 @@ public class Bibliotheque {
             System.out.println("\t 3) Magazine Scientifique");
             choixType = sc.nextLine();
             switch (choixType){
-                case "0": gestionDocument(); break;
+                case "0": manageDocument(); break;
                 case "1":
                     Article a = new Article();
                     remplissageDocument(a);
@@ -424,14 +416,14 @@ public class Bibliotheque {
         }while (!choixType.equals("0"));
     }
 
-    public void modifierDocument(){
+    public void updateDocument(){
         System.out.println("\n\t *****\tModifier un document par id\t*****");
         Document d;
         d = chercherDocumentById();
         d.modifierCeDocument(sc, historique);
     }
 
-    public void supprimerDocument(){
+    public void deleteDocument(){
         System.out.println("\n\t *****\tSuppression de document\t*****");
         Document d;
         d = chercherDocumentById();
@@ -450,7 +442,7 @@ public class Bibliotheque {
         pause(1000);
     }
 
-    public void chercherDocument(){
+    public void searchDocument(){
         System.out.println("\n\t *****\tChercher un document et afficher ces prets\t*****");
         ArrayList<Document> listDocumentTrouver = new ArrayList<>();
         chercherDocByIdOrTitre(listDocumentTrouver);
@@ -475,7 +467,7 @@ public class Bibliotheque {
         sc.nextLine();
     }
 
-    public void gestionPret(){
+    public void managePret(){
         String choixPret;
         do {
             System.out.println("\n\t *****\tGestion Des Prets\t*****");
@@ -488,16 +480,16 @@ public class Bibliotheque {
             choixPret = sc.nextLine();
             switch (choixPret){
                 case "0": menu(); break;
-                case "1": afficherPret(); break;
-                case "2": ajouterPret(); break;
-                case "3": modifierPret(); break;
+                case "1": printPret(); break;
+                case "2": addPret(); break;
+                case "3": updatePret(); break;
                 case "4": rendrePret(); break;
                 default: System.out.println("\t Choix invalide! veillez réessayer"); pause(1000); break;
             }
         }while (!choixPret.equals("0"));
     }
 
-    public void afficherPret(){
+    public void printPret(){
         int nb=0;
         System.out.println("\n\t ******\tTout les prêts en cours\t*****");
 //        VERIFIER SI IL EXISTE UN PRET EN COURS
@@ -516,17 +508,17 @@ public class Bibliotheque {
         sc.nextLine();
     }
 
-    public void ajouterPret(){
+    public void addPret(){
         System.out.println("\n\t *****\tAjouter un prêt\t*****");
         System.out.println("\t Selectionnez l'adherent");
         Adherent a;
-        a = chercherAdherentById();
+        a = findAdherentById();
         System.out.println("\t Selectionnez le document");
         Document d;
         d = chercherDocumentById();
-//      VOIR SI RETARDATAIRE
+            //verifier le status de l'adherent
         if (!a.isRetard()){
-//          ADHERENT N'EST PAS RETARDATAIRE & VOIRE S'IL A ATTEINT CES NOMBRE DE PRET LIMITE
+            //ADHERENT N'EST PAS RETARDATAIRE & VOIRE S'IL A ATTEINT CES NOMBRE DE PRET LIMITE
             if (a.getNbMaxPrets()>a.getNbPret()){
 //              TOUTES LES CONTRAINTES SUR L'ADHERENT SONT VERIFIER & VOIR SI DOCUMENT EXISTE ENCORE DANS LA BIBLIOTHEQUE
                 if (d.getListPret().size()<d.getNbExemplaires()){
@@ -550,7 +542,7 @@ public class Bibliotheque {
                 pause(1000);
                 return;
             }
-            System.out.println("\t Cette adherent a atteint ces emprint limite");
+            System.out.println("\t Cette adherent a atteint ces emprunts limites");
             pause(1000);
             return;
         }
@@ -558,13 +550,13 @@ public class Bibliotheque {
         pause(1000);
     }
 
-    public void modifierPret(){
+    public void updatePret(){
         System.out.println("\n\t *****\tModification d'un prêt\t*****");
         String choix;
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         System.out.println("\t Selectionnez l'adherent");
         Adherent a;
-        a = chercherAdherentById();
+        a = findAdherentById();
         System.out.println("\t Selectionnez le document");
         Document d;
         d = chercherDocumentById2(a);
@@ -579,7 +571,7 @@ public class Bibliotheque {
                     System.out.println("\t 3 ) Modifier la date du pret ("+sdf.format(pretDocument.getDateDuPret())+")");
                     choix = sc.nextLine();
                     switch (choix){
-                        case "0": gestionPret(); break;
+                        case "0": managePret(); break;
                         case "1":
                             Document newDocument;
                             System.out.println("\t Chercher le nouveau document");
@@ -603,7 +595,7 @@ public class Bibliotheque {
                         case "2":
                             Adherent newAdherent;
                             System.out.println("\t Chercher le nouveau adherent");
-                            newAdherent = chercherAdherentById();
+                            newAdherent = findAdherentById();
 //                            TESTER SI ADHERENT RETARDATAIRE OU NE PEUX PLUS PRENDRE DE DOCUMENTS
                             if (!newAdherent.isRetard())
                                 if (newAdherent.getNbMaxPrets()>newAdherent.getNbPret()){
@@ -653,7 +645,7 @@ public class Bibliotheque {
         System.out.println("\n\t *****\tRendre un document\t*****");
         System.out.println("\t Chercher l'adherent a rendre le document");
         Adherent a;
-        a = chercherAdherentById();
+        a = findAdherentById();
         System.out.println("\t Chercher le document a rendre");
         Document d;
         d = chercherDocumentById2(a);
@@ -670,7 +662,7 @@ public class Bibliotheque {
         System.out.println("\t Cette adherent n'a pas empreter ce document");
     }
 
-    public void toutHistorique(){
+    public void allHistory(){
         System.out.println("\n\t ***\tHISTORIQUE\t*****");
         String choix;
         do {
@@ -688,21 +680,21 @@ public class Bibliotheque {
             choix = sc.nextLine();
             switch (choix){
                 case "0": menu(); break;
-                case "1": afficherHistorique(); break;
-                case "2": afficherHistoriqueByClassName("Adherent"); break;
-                case "3": afficherHistoriqueByClassName("Document"); break;
-                case "4": afficherHistoriqueByClassName("Pret"); break;
-                case "5": afficherHistoriqueByType("Modification"); break;
-                case "6": afficherHistoriqueByType("Ajout"); break;
-                case "7": afficherHistoriqueByType("Suppression"); break;
-                case "8": afficherHistoriqueByDate(); break;
-                case "9": afficherHistoriqueByID(); break;
+                case "1": displayHistory(); break;
+                case "2": displayHistoryByClassName("Adherent"); break;
+                case "3": displayHistoryByClassName("Document"); break;
+                case "4": displayHistoryByClassName("Pret"); break;
+                case "5": displayHistoryByType("Modification"); break;
+                case "6": displayHistoryByType("Ajout"); break;
+                case "7": displayHistoryByType("Suppression"); break;
+                case "8": displayHistoryByDate(); break;
+                case "9": displayHistoryByData(); break;
                 default: System.out.println("\t Choix invalide! veillez réessayer"); pause(1000); break;
             }
         }while (!choix.equals("0"));
     }
 
-    public void afficherHistorique(){
+    public void displayHistory(){
         int count =historique.size()-1;
         int i;
         System.out.println("\n\t *****\tHISTORIQUE DE LA BIBLIOTHEQUE\t*****\n");
@@ -728,7 +720,7 @@ public class Bibliotheque {
         sc.nextLine();
     }
 
-    public void afficherHistoriqueByClassName(String str){
+    public void displayHistoryByClassName(String str){
         int count =historique.size()-1;
         int i;
         System.out.println("\n\t *****\tHISTORIQUE DE LA BIBLIOTHEQUE\t*****\n");
@@ -756,7 +748,7 @@ public class Bibliotheque {
         sc.nextLine();
     }
 
-    public void afficherHistoriqueByType(String str){
+    public void displayHistoryByType(String str){
         int count =historique.size()-1;
         int i=0;
         System.out.println("\n\t *****\tHISTORIQUE DE LA BIBLIOTHEQUE\t*****\n");
@@ -784,7 +776,7 @@ public class Bibliotheque {
         sc.nextLine();
     }
 
-    public void afficherHistoriqueByDate(){
+    public void displayHistoryByDate(){
         SimpleDateFormat sdf= new SimpleDateFormat("dd/MM/yyyy");
         String str;
         int i;
@@ -823,9 +815,9 @@ public class Bibliotheque {
         sc.nextLine();
     }
 
-    public void afficherHistoriqueByID(){
+    public void displayHistoryByData(){
         Adherent a;
-        a = chercherAdherentById();
+        a = findAdherentById();
         int i;
         int count =historique.size()-1;
         System.out.println("\n\t *****\tHISTORIQUE DE LA BIBLIOTHEQUE\t*****\n");
@@ -853,7 +845,7 @@ public class Bibliotheque {
         sc.nextLine();
     }
 
-    public Adherent chercherAdherentById(){
+    public Adherent findAdherentById(){
         int id;
         String choix;
         Adherent adherent = new Adherent();
@@ -964,7 +956,7 @@ public class Bibliotheque {
             System.out.println("\t Veillez choisir une option : ");
             choix = sc.nextLine();
             switch (choix){
-                case "0": gestionDocument(); return;
+                case "0": manageDocument(); return;
                 case "1":
                     System.out.println("\t Entrer ID : ");
                     id = verifierID();
@@ -1008,8 +1000,8 @@ public class Bibliotheque {
             System.out.println("\t Veillez choisir une option : ");
             choix = sc.nextLine();
             switch (choix){
-                case "0": gestionDocument(); break;
-                case "1": afficherDocument(); break;
+                case "0": manageDocument(); break;
+                case "1": printDocument(); break;
                 case "2":
                     System.out.println("\t Entrer l'ID du document : ");
                     id = verifierID();
@@ -1042,7 +1034,7 @@ public class Bibliotheque {
             System.out.println("\t Veillez choisir une option : ");
             choix = sc.nextLine();
             switch (choix){
-                case "0": gestionPret(); break;
+                case "0": managePret(); break;
                 case "1":
                     enteteDocument();
                     for (Document d:listDocument)
@@ -1208,21 +1200,23 @@ public class Bibliotheque {
         listAdherent.add(a3);
         listAdherent.add(a4);
 //        AJOUT AUTOMATIQUE DE 5 DOCUMENTS
-        Document d1 = new Article(95, "Le corona-virus", "S1/F100", 1, "Information Center", new Date());
-        Document d2 = new Article(96, "La nature", "S1/F321", 1, "Nat Geo", new Date());
-        Document d3 = new Livre(97, "Harry Potter livre 1", "S1/L112", 2, "J.K Rowling", "Gallimard Jeunesse", new Date());
-        Document d4 = new Livre(98, "Le seigneur des anneaux", "S1/L538", 2, "J.R.R Tolkien", "Allen & Unwin", new Date());
-        Document d5 = new Magazine(99, "Elle", "S1/M019", 1, 500);
+        Document d1 = new Article(1, "Learn English", "B1/00", 1, "Information Center", new Date());
+        Document d2 = new Article(2, "POO JAVA", "B2/01", 1, "ORACLE", new Date());
+        Document d3 = new Livre(3, "CLOUD BASICS", "B3/02", 2, "HUAWEY", "AWS", new Date());
+        Document d4 = new Livre(4, "LES PIRATES", "B4/03", 2, "CHAPELIN", "ZONE 4", new Date());
+        Document d5 = new Magazine(5, "MUSIC", "B5/04", 1, 500);
+        Document d6 = new Memoire(6,"PROJET POO","B6/04",2,"NICK KENGNE","BIBLIOTHEQUE",new Date());
         listDocument.add(d1);
         listDocument.add(d2);
         listDocument.add(d3);
         listDocument.add(d4);
         listDocument.add(d5);
+        listDocument.add(d6);
 //        AJOUT DE PRETS EN RETARD D'ARTICLE 1 AU 5EME ADHERENT
         PretDocument pretDocument = new PretDocument();
         pretDocument.setAdherent(a2);
         try{
-            pretDocument.setDateDuPret(sdf.parse("11/6/2020"));
+            pretDocument.setDateDuPret(sdf.parse("25/5/2024"));
         }catch (ParseException e){
             System.out.println("rien");
         }

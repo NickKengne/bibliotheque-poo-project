@@ -1,7 +1,7 @@
 package documents;
 
 import service.Historique;
-import pricipale.Bibliotheque;
+import main.Bibliotheque;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -9,18 +9,17 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Scanner;
 
-public class Livre extends Document {
-    private String nomAuteur, nomEditeur;
-    private Date dateEdition;
+public class Article extends Document {
+    private String nomAuteur;
+    private Date datePublication;
 
-    public Livre() {
+    public Article() {
     }
 
-    public Livre(int id, String titre, String localisation, int nbExemplaires, String nomAuteur, String nomEditeur, Date dateEdition) {
+    public Article(int id, String titre, String localisation, int nbExemplaires, String nomAuteur, Date datePublication) {
         super(id, titre, localisation, nbExemplaires);
         this.nomAuteur = nomAuteur;
-        this.nomEditeur = nomEditeur;
-        this.dateEdition = dateEdition;
+        this.datePublication = datePublication;
     }
 
     public String getNomAuteur() {
@@ -31,27 +30,20 @@ public class Livre extends Document {
         this.nomAuteur = nomAuteur;
     }
 
-    public String getNomEditeur() {
-        return nomEditeur;
+    public Date getDatePublication() {
+        return datePublication;
     }
 
-    public void setNomEditeur(String nomEditeur) {
-        this.nomEditeur = nomEditeur;
-    }
-
-    public Date getDateEdition() {
-        return dateEdition;
-    }
-
-    public void setDateEdition(Date dateEdition) {
-        this.dateEdition = dateEdition;
+    public void setDatePublication(Date datePublication) {
+        this.datePublication = datePublication;
     }
 
     public String toString() {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        return "Livre [ "+super.toString()+", N.A: "+nomAuteur+", N.E: "+nomEditeur+", D.E: "+sdf.format(dateEdition)+" ]";
+        return "Article [ "+super.toString()+", N.A: "+nomAuteur+", D.P: "+sdf.format(datePublication)+" ]";
     }
 
+    @Override
     public void afficherCeDocument(int disponible, int nb){
         double k;
         if (nb==0)
@@ -63,8 +55,8 @@ public class Livre extends Document {
         System.out.printf("|%4d", getId());
         System.out.printf("|%36s", getTitre());
         System.out.printf("|%20s", getNomAuteur());
-        System.out.printf("|%20s", getNomEditeur());
-        System.out.printf("|%10s", sdf.format(getDateEdition()));
+        System.out.print("|    ------------    ");
+        System.out.printf("|%10s", sdf.format(getDatePublication()));
         System.out.print("|   ------   ");
         System.out.printf("|%12s", getLocalisation());
         System.out.printf("|%12d", getNbExemplaires());
@@ -84,24 +76,22 @@ public class Livre extends Document {
             System.out.printf("|%5s", k);
             System.out.print("%");
         }
-            System.out.printf("|%5s", k);
-        System.out.print("%");
         System.out.println("|");
     }
 
+    @Override
     public void modifierCeDocument(Scanner sc, ArrayList<Historique> historique){
         String choix, str;
         Bibliotheque b = new Bibliotheque();
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        System.out.println("\t Que voulez vous modifier de ce Livre : ");
+        System.out.println("\t Que voulez vous modifier de cet Article : ");
         do {
             System.out.println("\t 0) Sortire");
             System.out.println("\t 1) Titre ("+getTitre()+")");
             System.out.println("\t 2) Localisation ("+getLocalisation()+")");
             System.out.println("\t 3) Nombre Exemplaires ("+getNbExemplaires()+")");
             System.out.println("\t 4) Nom auteur ("+getNomAuteur()+")");
-            System.out.println("\t 5) Nom editeur ("+getNomEditeur()+")");
-            System.out.println("\t 6) Date publication ("+sdf.format(getDateEdition())+")");
+            System.out.println("\t 5) Date publication ("+sdf.format(getDatePublication())+")");
             choix = sc.nextLine();
             switch (choix){
                 case "0": return;
@@ -150,21 +140,13 @@ public class Livre extends Document {
                     b.pause(1000);
                     break;
                 case "5":
-                    String ancienEditeur=getNomEditeur();
-                    System.out.println("\t Entrer nouveau nom d'éditeur");
-                    setNomEditeur(sc.nextLine());
-                    historique.add(new Historique(new Date(), "Document", "Modification",getId(), "Nom editeur de "+ancienEditeur+" par "+getNomEditeur()));
-                    System.out.println("\t Modification avec succees.");
-                    b.pause(1000);
-                    break;
-                case "6":
-                    String ancienneDate = sdf.format(getDateEdition());
+                    String ancienneDate = sdf.format(getDatePublication());
                     System.out.println("\t Entrer nouvelle date de publication sous forme (DD/MM/YYYY)");
                     str = sc.nextLine();
                     try {
-                        setDateEdition(sdf.parse(str));
+                        setDatePublication(sdf.parse(str));
                         System.out.println("\t Modification avec succees.");
-                        historique.add(new Historique(new Date(), "Document", "Modification",getId(), "Date publication de "+ancienneDate+" par "+sdf.format(getDateEdition())));
+                        historique.add(new Historique(new Date(), "Document", "Modification",getId(), "Date publication de "+ancienneDate+" par "+sdf.format(getDatePublication())));
                         b.pause(1000);
                     }catch (ParseException e){
                         System.out.println("\t Forme non respecter!");

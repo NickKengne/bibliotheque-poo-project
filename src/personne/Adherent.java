@@ -1,7 +1,7 @@
 package personnel;
 
 import service.Historique;
-import pricipale.Bibliotheque;
+import main.Bibliotheque;
 
 import java.util.ArrayList;
 import java.util.Date;

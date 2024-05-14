@@ -1,7 +1,7 @@
 package documents;
 
 import service.Historique;
-import pricipale.Bibliotheque;
+import main.Bibliotheque;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Scanner;
@@ -29,6 +29,7 @@ public class Magazine extends Document {
         return "Magazine [ " + super.toString() + ", F: " + frequence + " ]";
     }
 
+    @Override
     public void afficherCeDocument(int disponible, int nb) {
         double k;
         if (nb == 0)
@@ -65,6 +66,7 @@ public class Magazine extends Document {
         System.out.println("|");
     }
 
+    @Override
     public void modifierCeDocument(Scanner sc, ArrayList<Historique> historique) {
         String choix;
         Bibliotheque b = new Bibliotheque();

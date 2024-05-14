@@ -1,7 +1,7 @@
 package documents;
 
+import main.Bibliotheque;
 import service.Historique;
-import pricipale.Bibliotheque;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -9,38 +9,53 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Scanner;
 
-public class Article extends Document {
-    private String nomAuteur;
-    private Date datePublication;
+public class Memoire extends Document{
 
-    public Article() {
+    private String name;
+    private Date date_soutenance;
+    private String titre_du_memoire;
+
+    public Memoire() {
     }
 
-    public Article(int id, String titre, String localisation, int nbExemplaires, String nomAuteur, Date datePublication) {
+    public Memoire(int id, String titre, String localisation, int nbExemplaires, String nomCandidat, String titreMemoire , Date dateSoutenance) {
         super(id, titre, localisation, nbExemplaires);
-        this.nomAuteur = nomAuteur;
-        this.datePublication = datePublication;
+        this.name= nomCandidat;
+        this.titre= titreMemoire;
+        this.date_soutenance= dateSoutenance;
     }
 
-    public String getNomAuteur() {
-        return nomAuteur;
+    public String getName() {
+        return name;
     }
 
-    public void setNomAuteur(String nomAuteur) {
-        this.nomAuteur = nomAuteur;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public Date getDatePublication() {
-        return datePublication;
+    public Date getDate_soutenance() {
+        return date_soutenance;
     }
 
-    public void setDatePublication(Date datePublication) {
-        this.datePublication = datePublication;
+    public void setDate_soutenance(Date date_soutenance) {
+        this.date_soutenance = date_soutenance;
     }
 
+    public String getTitre_du_memoire() {
+        return titre_du_memoire;
+    }
+
+    public void setTitre_du_memoire(String titre_du_memoire) {
+        this.titre_du_memoire = titre_du_memoire;
+    }
+
+    @Override
     public String toString() {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        return "Article [ "+super.toString()+", N.A: "+nomAuteur+", D.P: "+sdf.format(datePublication)+" ]";
+        return "Memoire{" +
+                "name='" + name + '\'' +
+                ", date_soutenance=" + date_soutenance +
+                ", titre_du_memoire='" + titre_du_memoire + '\'' +
+                '}';
     }
 
     public void afficherCeDocument(int disponible, int nb){
@@ -53,9 +68,9 @@ public class Article extends Document {
         System.out.printf("|%9s", getClass().getSimpleName());
         System.out.printf("|%4d", getId());
         System.out.printf("|%36s", getTitre());
-        System.out.printf("|%20s", getNomAuteur());
-        System.out.print("|    ------------    ");
-        System.out.printf("|%10s", sdf.format(getDatePublication()));
+        System.out.printf("|%20s", getName());
+        System.out.printf("|%20s", getTitre());
+        System.out.printf("|%10s", sdf.format(getDate_soutenance()));
         System.out.print("|   ------   ");
         System.out.printf("|%12s", getLocalisation());
         System.out.printf("|%12d", getNbExemplaires());
@@ -75,6 +90,8 @@ public class Article extends Document {
             System.out.printf("|%5s", k);
             System.out.print("%");
         }
+        System.out.printf("|%5s", k);
+        System.out.print("%");
         System.out.println("|");
     }
 
@@ -82,14 +99,15 @@ public class Article extends Document {
         String choix, str;
         Bibliotheque b = new Bibliotheque();
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        System.out.println("\t Que voulez vous modifier de cet Article : ");
+        System.out.println("\t Que voulez vous modifier de ce Livre : ");
         do {
             System.out.println("\t 0) Sortire");
             System.out.println("\t 1) Titre ("+getTitre()+")");
             System.out.println("\t 2) Localisation ("+getLocalisation()+")");
             System.out.println("\t 3) Nombre Exemplaires ("+getNbExemplaires()+")");
-            System.out.println("\t 4) Nom auteur ("+getNomAuteur()+")");
-            System.out.println("\t 5) Date publication ("+sdf.format(getDatePublication())+")");
+            System.out.println("\t 4) Nom Candidat ("+getName()+")");
+            System.out.println("\t 5) Titre Memoire ("+getTitre()+")");
+            System.out.println("\t 6) Date Soutenance ("+sdf.format(getDate_soutenance())+")");
             choix = sc.nextLine();
             switch (choix){
                 case "0": return;
@@ -130,21 +148,29 @@ public class Article extends Document {
                     b.pause(1000);
                     break;
                 case "4":
-                    String ancienNomAuteur = getNomAuteur();
-                    System.out.println("\t Entrer nouveau nom d'auteur");
-                    setNomAuteur(sc.nextLine());
-                    historique.add(new Historique(new Date(), "Document", "Modification",getId(), "Nom auteur de "+ancienNomAuteur+" par "+getNomAuteur()));
+                    String ancienNomCandidat = getName();
+                    System.out.println("\t Entrer nouveau nom Candidat");
+                    setName(sc.nextLine());
+                    historique.add(new Historique(new Date(), "Document", "Modification",getId(), "Nom candidat de "+ancienNomCandidat+" par "+getName()));
                     System.out.println("\t Modification avec succees.");
                     b.pause(1000);
                     break;
                 case "5":
-                    String ancienneDate = sdf.format(getDatePublication());
-                    System.out.println("\t Entrer nouvelle date de publication sous forme (DD/MM/YYYY)");
+                    String ancienTitreMemoire=getTitre();
+                    System.out.println("\t Entrer nouveau titre memoire");
+                    setTitre(sc.nextLine());
+                    historique.add(new Historique(new Date(), "Document", "Modification",getId(), "Nom editeur de "+ancienTitreMemoire+" par "+getTitre()));
+                    System.out.println("\t Modification avec succees.");
+                    b.pause(1000);
+                    break;
+                case "6":
+                    String ancienneDateSoutenance = sdf.format(getDate_soutenance());
+                    System.out.println("\t Entrer nouvelle date de Soutenance sous forme (DD/MM/YYYY)");
                     str = sc.nextLine();
                     try {
-                        setDatePublication(sdf.parse(str));
+                        setDate_soutenance(sdf.parse(str));
                         System.out.println("\t Modification avec succees.");
-                        historique.add(new Historique(new Date(), "Document", "Modification",getId(), "Date publication de "+ancienneDate+" par "+sdf.format(getDatePublication())));
+                        historique.add(new Historique(new Date(), "Document", "Modification",getId(), "Date soutenance de "+ancienneDateSoutenance+" par "+sdf.format(getDate_soutenance())));
                         b.pause(1000);
                     }catch (ParseException e){
                         System.out.println("\t Forme non respecter!");
@@ -158,4 +184,6 @@ public class Article extends Document {
             }
         }while (true);
     }
+
+
 }
